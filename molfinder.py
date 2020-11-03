@@ -17,7 +17,7 @@ from rdkit.Chem import RDConfig
 from rdkit.DataStructs import TanimotoSimilarity
 from rdkit.Chem import QED, AllChem
 
-sys.path.append(os.path.join(RDConfig.RDContribDir, 'SA_Score'))
+sys.path.append(os.path.join(RDConfig.RDContribDir, "SA_Score"))
 # now you can import sascore!
 import sascorer
 from sascorer import calculateScore
@@ -25,13 +25,47 @@ import ModSmi
 
 
 parser = argparse.ArgumentParser(description="?")
-parser.add_argument("-N", "--nbank", metavar="N", type=int, default=None, help="Bank Size")
-parser.add_argument("-r", "--rseed", metavar="N", type=int, default=None, help="random seed")
-parser.add_argument("-n", "--nconvergent", metavar="N", type=int, required=True, help="# of convergent round")
-parser.add_argument("-v", "--value", metavar="N", type=int, required=True, help="target value ex) Davg/3")
-parser.add_argument("-c", "--coef", metavar="coef. of QED", type=float, default=0.83, help="QED")
-parser.add_argument("-dc", "--distancecoef", metavar="coef. of distance", type=float, default=1, help="Control Dcut")
-parser.add_argument("-t", "--target", metavar="SMILES", type=str, default=None, help="target_moleclue SMILES")
+parser.add_argument(
+    "-N", "--nbank", metavar="N", type=int, default=None, help="Bank Size"
+)
+parser.add_argument(
+    "-r", "--rseed", metavar="N", type=int, default=None, help="random seed"
+)
+parser.add_argument(
+    "-n",
+    "--nconvergent",
+    metavar="N",
+    type=int,
+    required=True,
+    help="# of convergent round",
+)
+parser.add_argument(
+    "-v",
+    "--value",
+    metavar="N",
+    type=int,
+    required=True,
+    help="target value ex) Davg/3",
+)
+parser.add_argument(
+    "-c", "--coef", metavar="coef. of QED", type=float, default=0.83, help="QED"
+)
+parser.add_argument(
+    "-dc",
+    "--distancecoef",
+    metavar="coef. of distance",
+    type=float,
+    default=1,
+    help="Control Dcut",
+)
+parser.add_argument(
+    "-t",
+    "--target",
+    metavar="SMILES",
+    type=str,
+    default=None,
+    help="target_moleclue SMILES",
+)
 args = parser.parse_args()
 
 if args.target:
@@ -48,6 +82,8 @@ if args.target:
         compare_target = np.asarray(compare_target)
 
         return sim_coef * compare_target + (1 - sim_coef) * x[:, 4]
+
+
 else:
     qed_coef = args.coef
     sas_coef = 1 - args.coef
@@ -335,7 +371,9 @@ def append_seed(new_smi, mol, update_solution):
         return 0
 
 
-def prepare_child(seed, nCross1=20, nCross2=20, nCross3=20, nReplace=20, nAdd=20, nRemove=20):
+def prepare_child(
+    seed, nCross1=20, nCross2=20, nCross3=20, nReplace=20, nAdd=20, nRemove=20
+):
     update_solution = []
     # print(seed[:, 0])
     for i in range(seed.shape[0]):
@@ -357,9 +395,13 @@ def prepare_child(seed, nCross1=20, nCross2=20, nCross3=20, nReplace=20, nAdd=20
                 smi2 = bank[w, 0]
 
                 if np.random.random() >= 0.5:
-                    new_smi, mol = crossover_smiles(smi1, smi2, ModSmi.prepare_rigid_crossover, True)
+                    new_smi, mol = crossover_smiles(
+                        smi1, smi2, ModSmi.prepare_rigid_crossover, True
+                    )
                 else:
-                    new_smi, mol = crossover_smiles(smi2, smi1, ModSmi.prepare_rigid_crossover, True)
+                    new_smi, mol = crossover_smiles(
+                        smi2, smi1, ModSmi.prepare_rigid_crossover, True
+                    )
 
                 if mol:
                     j += append_seed(new_smi, mol, update_solution)
@@ -380,9 +422,13 @@ def prepare_child(seed, nCross1=20, nCross2=20, nCross3=20, nReplace=20, nAdd=20
                 smi2 = bank[w, 0]
 
                 if np.random.random() >= 0.5:
-                    new_smi, mol = crossover_smiles(smi1, smi2, ModSmi.prepare_rigid_crossover, False)
+                    new_smi, mol = crossover_smiles(
+                        smi1, smi2, ModSmi.prepare_rigid_crossover, False
+                    )
                 else:
-                    new_smi, mol = crossover_smiles(smi2, smi1, ModSmi.prepare_rigid_crossover, False)
+                    new_smi, mol = crossover_smiles(
+                        smi2, smi1, ModSmi.prepare_rigid_crossover, False
+                    )
 
                 if mol:
                     j += append_seed(new_smi, mol, update_solution)
@@ -523,13 +569,14 @@ def prepare_local_child(_smi, nReplace=10, nAdd=10, nRemove=10):
     return np.asarray(update_solution)
 
 
-
 def update_bank(child_solutions, local_opt=False):
     cnt_replace = 0
     # bank_min = np.min(5 * bank[:, 4] - bank[:, 3])  # 5*QED - SAS
     bank_min = np.min(obj_eq(bank))  # coef.*QED - coef.*SAS
     # child_solutions = child_solutions[(5 * child_solutions[:, 4] - child_solutions[:, 3]) > bank_min]  # 5*QED - SAS
-    child_solutions = child_solutions[obj_eq(child_solutions) > bank_min]  # coef.*QED - coef.*SAS
+    child_solutions = child_solutions[
+        obj_eq(child_solutions) > bank_min
+    ]  # coef.*QED - coef.*SAS
 
     if len(child_solutions) == 0:
         raise PermissionError("child solutions 가 없습니다 !")
@@ -554,18 +601,24 @@ def update_bank(child_solutions, local_opt=False):
             if dist > max_similarity:
                 max_similarity = dist
                 max_n = _
-        
+
         if local_opt:
             if (1 - max_similarity) < dcut:
-                if obj_eq(local_solutions[x : x + 1]) > obj_eq(bank[max_n : max_n + 1]):  # similarity check 없이 넣으면 같은 분자가 너무 많이 생성된다.
+                if obj_eq(local_solutions[x : x + 1]) > obj_eq(
+                    bank[max_n : max_n + 1]
+                ):  # similarity check 없이 넣으면 같은 분자가 너무 많이 생성된다.
                     bank[max_n] = local_solutions[x : x + 1]
                     cnt_replace += 1
             else:
                 _min = np.argmin(obj_eq(bank))
                 # print("#"*10, obj_eq(local_solutions[x : x + 1]), obj_eq(bank[_min : _min + 1]), final_avg.mean())
-                if (max_similarity < 0.98) and (obj_eq(bank[_min : _min + 1]) < final_avg.mean()):  # @3 추가 local6 에서 추가
+                if (max_similarity < 0.98) and (
+                    obj_eq(bank[_min : _min + 1]) < final_avg.mean()
+                ):  # @3 추가 local6 에서 추가
                     # print("@"*10)
-                    if obj_eq(local_solutions[x : x + 1]) > obj_eq(bank[_min : _min + 1]):
+                    if obj_eq(local_solutions[x : x + 1]) > obj_eq(
+                        bank[_min : _min + 1]
+                    ):
                         bank[_min] = local_solutions[x : x + 1]
                         cnt_replace += 1
         else:
@@ -575,8 +628,12 @@ def update_bank(child_solutions, local_opt=False):
                     cnt_replace += 1
             else:
                 _min = np.argmin(obj_eq(bank))
-                if (max_similarity < 0.98) and (obj_eq(bank[_min : _min + 1]) < final_avg.mean()):  # @3 추가 local6 에서 추가
-                    if obj_eq(child_solutions[i : i + 1]) > obj_eq(bank[_min : _min + 1]):
+                if (max_similarity < 0.98) and (
+                    obj_eq(bank[_min : _min + 1]) < final_avg.mean()
+                ):  # @3 추가 local6 에서 추가
+                    if obj_eq(child_solutions[i : i + 1]) > obj_eq(
+                        bank[_min : _min + 1]
+                    ):
                         bank[_min] = child_solutions[i]
                         cnt_replace += 1
 
@@ -610,7 +667,11 @@ if __name__ == "__main__":
 
     # bank = init_bank('/home2/yongbeom/research/my_csa/all_pubchem_prob_0.01.smi.SAS', nbank, rseed=args.rseed)  # server PubChem
 
-    bank = init_bank("/home2/yongbeom/research/my_csa/sampled_ZINC_0.001.smi.SAS", nbank, rseed=args.rseed)  # server ZINC
+    bank = init_bank(
+        "/home2/yongbeom/research/my_csa/sampled_ZINC_0.001.smi.SAS",
+        nbank,
+        rseed=args.rseed,
+    )  # server ZINC
 
     # indv_PC
     # bank = init_bank("/home/yongbeom/research/gen_smiles/SAS/sampled_ZINC_0.001.smi.SAS", nbank, rseed=args.rseed)
@@ -636,7 +697,7 @@ if __name__ == "__main__":
         davg = cal_avg_dist(first_bank)
 
     davg = 1 - davg
-    davg = davg*args.distancecoef
+    davg = davg * args.distancecoef
     dcut = davg / 2
 
     final_avg = origin_avg
@@ -646,7 +707,9 @@ if __name__ == "__main__":
     with open(f"iteration.log", "w") as log_f2:
         log_f2.write(f"load_time: {chk_load:.3f} min\n")
         log_f2.write(f"dist_time: {chk_calc:.1f} min\n")
-        log_f2.write(f"round  iter  unused  time_seed  time_child  time_update  n_replace\n")
+        log_f2.write(
+            f"round  iter  unused  time_seed  time_child  time_update  n_replace\n"
+        )
 
     with open(f"message.log", "w") as log_f:
         log_f.write(f"nbank: {nbank}\n")
@@ -657,7 +720,9 @@ if __name__ == "__main__":
         log_f.write(
             f"init_bank_avg - QED: {first_bank[:, 4].mean():.3f}, SAS: {first_bank[:, 3].mean():.3f}, OBJ: {origin_avg.mean():.3f}\n"
         )
-        log_f.write(f"round   dcut  n_iter  obj_avg  obj_min  obj_max  n_replace  min/round\n")
+        log_f.write(
+            f"round   dcut  n_iter  obj_avg  obj_min  obj_max  n_replace  min/round\n"
+        )
 
     save_bank = np.empty([max_repeat, bank.shape[0], bank.shape[1] - 1], dtype=object)
 
@@ -682,7 +747,9 @@ if __name__ == "__main__":
             # log_f.write(f'## CHILD ### @ {np.count_nonzero(bank[:, 2] == True)} #############\n')
             time_child = ChkTime()
             child_solutions = prepare_child(seed)
-            shuffled_index_ = np.random.permutation(child_solutions.shape[0])  # @4 에서 추가 됨.
+            shuffled_index_ = np.random.permutation(
+                child_solutions.shape[0]
+            )  # @4 에서 추가 됨.
             child_solutions = child_solutions[shuffled_index_]
             time_child = time_child.get()
             # log_f.write(f'## CHILD ### @ {np.count_nonzero(bank[:, 2] == True)} #### AFTER ##\n')
@@ -731,7 +798,7 @@ if __name__ == "__main__":
         tmp_bank[:, 1:] = tmp_bank[:, 1:].astype(np.float16)
         tmp = np.argsort(tmp_bank[:, 3])  # 5*QED - SAS
         save_bank[round_] = tmp_bank[tmp[::-1]]
-        
+
         df = pd.DataFrame(tmp_bank, columns=["SMILES", "SAS", "QED", "TARGET"])
         df.to_csv(f"bank_round{round_}_{R_d:.5f}_{args.coef:.3f}.csv", index=False)
 
@@ -742,7 +809,9 @@ if __name__ == "__main__":
 
     np.save(f"list_bank_{R_d:.5f}_{args.coef:.3f}.npy", save_bank)
     save_smiles = pd.DataFrame(save_bank[:, :, 0])
-    save_smiles.to_csv(f"list_smiles_{R_d:.5f}_{args.coef:.3f}.csv", header=False, index=False)
+    save_smiles.to_csv(
+        f"list_smiles_{R_d:.5f}_{args.coef:.3f}.csv", header=False, index=False
+    )
 
     df = pd.DataFrame(final_bank, columns=["SMILES", "SAS", "QED", "TARGET"])
     df.to_csv(f"final_bank_{R_d:.5f}_{args.coef:.3f}.csv", index=False)

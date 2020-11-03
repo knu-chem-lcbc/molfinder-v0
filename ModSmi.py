@@ -101,7 +101,7 @@ def set_avoid_ring(_smiles):
 
 
 def prepare_rigid_crossover(_smiles, side, consider_ring=True, _minimum_len=4):
-    """ 1 point crossover
+    """1 point crossover
     :param _smiles: SMILES (str)
     :param side: Left SMILES or Right SMILES ['L'|'R'] (str)
     :param consider_ring: consider about avoiding ring (bool)
@@ -180,8 +180,7 @@ def prepare_rigid_crossover(_smiles, side, consider_ring=True, _minimum_len=4):
 
 
 def random_slicing_smiles(_smiles, consider_ring=True, _minimum_len=4, len_factor=1):
-    """
-    """
+    """"""
 
     _smiles_len = len(_smiles)
     max_limit_len = int(np.ceil(_smiles_len * len_factor))
@@ -273,7 +272,9 @@ def random_slicing_smiles(_smiles, consider_ring=True, _minimum_len=4, len_facto
     return _smi
 
 
-def prepare_flexible_crossover(_smiles, side, consider_ring=True, _minimum_len=4, len_factor=1):
+def prepare_flexible_crossover(
+    _smiles, side, consider_ring=True, _minimum_len=4, len_factor=1
+):
     """
     random slicing SMILES
     :param _smiles: SMILES (str)
@@ -412,7 +413,9 @@ def l_checker(_smi):
         while min_branch != 0:
             n = np.random.rand()
             if n > 0.6:  # relax insert "("
-                close_branch = [i for i, e in enumerate(_smi) if e in [")", "+", "-", "]"]]
+                close_branch = [
+                    i for i, e in enumerate(_smi) if e in [")", "+", "-", "]"]
+                ]
 
                 p = 0
                 b = True
@@ -464,7 +467,9 @@ def r_checker(_smi):
             n = np.random.rand()
             if n > 0.6:  # relax insert ")"
                 open_branch = [
-                    i for i, e in enumerate(_smi) if e in ["(", "+", "-", "[", "]", "=", "#"]
+                    i
+                    for i, e in enumerate(_smi)
+                    if e in ["(", "+", "-", "[", "]", "=", "#"]
                 ]
 
                 p = 0
@@ -531,7 +536,9 @@ def tight_rm_branch(_smi_l, _smi_r):
             while not branch_gate:  # Ring 부분을 피해서 자름
                 if j == limit_:
                     raise ValueError
-                b = np.random.randint(_smi_l_open_branch[-1] + 1, _smi_r_open_branch[-1] + q)
+                b = np.random.randint(
+                    _smi_l_open_branch[-1] + 1, _smi_r_open_branch[-1] + q
+                )
                 j += 1
                 if b not in avoid_tokens:
                     branch_gate = True
@@ -568,7 +575,9 @@ def tight_rm_branch(_smi_l, _smi_r):
             branch_gate = False
             j = 0
             while not branch_gate:  # Ring 부분을 피해서 자름
-                b = np.random.randint(_smi_l_close_branch[-1] + 1, _smi_r_close_branch[0] + q)
+                b = np.random.randint(
+                    _smi_l_close_branch[-1] + 1, _smi_r_close_branch[0] + q
+                )
                 j += 1
                 if b not in (close_branch + avoid_tokens):
                     branch_gate = True
@@ -619,21 +628,33 @@ def replace_atom(_smi):
         valence = mw.GetAtomWithIdx(rnd_atom).GetExplicitValence()
         if mw.GetAtomWithIdx(rnd_atom).GetIsAromatic():
             if valence is 3:
-                mw.ReplaceAtom(rnd_atom, Chem.Atom(replace_arom_atom_list[np.random.randint(0, 3)]))
+                mw.ReplaceAtom(
+                    rnd_atom, Chem.Atom(replace_arom_atom_list[np.random.randint(0, 3)])
+                )
             elif valence is 2:
-                mw.ReplaceAtom(rnd_atom, Chem.Atom(replace_arom_atom_list[np.random.randint(1, 5)]))
+                mw.ReplaceAtom(
+                    rnd_atom, Chem.Atom(replace_arom_atom_list[np.random.randint(1, 5)])
+                )
             else:
                 continue
             mw.GetAtomWithIdx(rnd_atom).SetIsAromatic(True)
         else:
             if valence is 4:
-                mw.ReplaceAtom(rnd_atom, Chem.Atom(replace_atom_list[np.random.randint(0, 2)]))
+                mw.ReplaceAtom(
+                    rnd_atom, Chem.Atom(replace_atom_list[np.random.randint(0, 2)])
+                )
             elif valence is 3:
-                mw.ReplaceAtom(rnd_atom, Chem.Atom(replace_atom_list[np.random.randint(0, 5)]))
+                mw.ReplaceAtom(
+                    rnd_atom, Chem.Atom(replace_atom_list[np.random.randint(0, 5)])
+                )
             elif valence is 2:
-                mw.ReplaceAtom(rnd_atom, Chem.Atom(replace_atom_list[np.random.randint(0, 7)]))
+                mw.ReplaceAtom(
+                    rnd_atom, Chem.Atom(replace_atom_list[np.random.randint(0, 7)])
+                )
             elif valence is 1:
-                mw.ReplaceAtom(rnd_atom, Chem.Atom(replace_atom_list[np.random.randint(0, 11)]))
+                mw.ReplaceAtom(
+                    rnd_atom, Chem.Atom(replace_atom_list[np.random.randint(0, 11)])
+                )
 
         p += 1
         # print(f"after: {Chem.MolToSmiles(mw)}")
@@ -712,7 +733,9 @@ def add_atom(_smi):
             raise PermissionError
 
         rnd_insert = np.random.randint(max_len)
-        _new_smi = _smi[:rnd_insert] + random.sample(list_atom, 1)[0] + _smi[rnd_insert:]
+        _new_smi = (
+            _smi[:rnd_insert] + random.sample(list_atom, 1)[0] + _smi[rnd_insert:]
+        )
         mol_ = Chem.MolFromSmiles(_new_smi)
 
     return _new_smi, mol_
@@ -770,7 +793,9 @@ if __name__ == "__main__":
             # mol = Chem.MolFromSmiles(smile)
             mol = Chem.MolFromSmiles(smile)
             Chem.Kekulize(mol)
-            smiles.append(Chem.MolToSmiles(mol, kekuleSmiles=True, isomericSmiles=False))
+            smiles.append(
+                Chem.MolToSmiles(mol, kekuleSmiles=True, isomericSmiles=False)
+            )
             # print("@", Chem.MolToSmiles(mol, kekuleSmiles=True, isomericSmiles=False))
             # cids.append(cid)
 
@@ -827,7 +852,7 @@ if __name__ == "__main__":
 
     # MAIN LOOP ########################################################
     # log_f = open(f"gen_smiles.log", "w")
-    
+
     print(f"Start at {datetime.datetime.now()}")
     s = time.time()
 
@@ -864,7 +889,7 @@ if __name__ == "__main__":
             # Branch control; ()를 고려한다. L: [:rand], R: [rand:] -------------------
             new_smi = tight_rm_branch(l_smi, r_smi)
             # except (IndexError, ValueError):
-                # raise PermissionError
+            # raise PermissionError
             # Consider ring; 고리를 고려하여 자른다. L: [:rand], R: [rand:] -------------------
             # new_smi = flexible_crossover(l_smi, r_smi)
             # print(f'{smi1} + {smi2}')
@@ -877,10 +902,10 @@ if __name__ == "__main__":
         return mol
 
     for idx in range(niter):
-    # def random_sample(_):
-    #     return random.sample(smiles, 2)
-    # with Pool(6) as pool:
-    #     imap_it = pool.map(random_sample, [i for i in range(niter)])
+        # def random_sample(_):
+        #     return random.sample(smiles, 2)
+        # with Pool(6) as pool:
+        #     imap_it = pool.map(random_sample, [i for i in range(niter)])
         # for smis in imap_it:
         # print(smis)
         new_smi = None
@@ -892,27 +917,27 @@ if __name__ == "__main__":
             try:
                 mol = sum_smiles(smi2, smi1)
             except (PermissionError, IndexError, ValueError):
-            # except PermissionError:
+                # except PermissionError:
                 n_fail += 1
                 continue
-        
+
         if mol:
             n_valid += 1
             # print("#", new_smi)
             # success_f.write(f"{new_smi}\n")
         else:
             n_fail += 1
-                # fail_f.write(f"{new_smi}\n")
+            # fail_f.write(f"{new_smi}\n")
 
             if idx % 100000 == 0:
                 print(f"Success rate: {n_valid/(n_valid + n_fail)*100}%")
     print(f"Final Success rate: {n_valid/(n_valid + n_fail)*100}%")
-            # log_f.write(f"Success rate: {n_valid/(n_valid + n_fail)*100}%\n")
+    # log_f.write(f"Success rate: {n_valid/(n_valid + n_fail)*100}%\n")
 
     #     # print(f'#   0 {idx:6}                  ', end='\r')
     #     # print(f'##  1 {idx:6}                  ', end='\r')
 
-    # ---------------------------------------------------------------------- 
+    # ----------------------------------------------------------------------
 
     # success_f.close()
     # fail_f.close()
