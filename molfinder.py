@@ -66,9 +66,14 @@ parser.add_argument(
     default=None,
     help="target_moleclue SMILES",
 )
+
 args = parser.parse_args()
 
 if args.target:
+    ######
+    # If target SMILES is given, the objective function is defined as 
+    # the weighted sum of similarity to the target molecules and QED value.
+    ######
     # target_fps = AllChem.GetMorganFingerprint(Chem.MolFromSmiles(args.target), 2)
     target_fps = Chem.RDKFingerprint(Chem.MolFromSmiles(args.target))
     sim_coef = args.coef
@@ -85,6 +90,11 @@ if args.target:
 
 
 else:
+    ######
+    # If target SMILES is not given, the objective function is defined as 
+    # the weighted sum of QED and SAscore values.
+    ######
+
     qed_coef = args.coef
     sas_coef = 1 - args.coef
     obj_eq = lambda x: qed_coef * x[:, 4] - sas_coef * x[:, 3]
