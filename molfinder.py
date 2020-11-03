@@ -3,7 +3,7 @@ MolFinder ver 0.1
 csa_yongbeom2 에서 local minimization 추가
 bad replace 조건 추가
 """
-import sys, os
+import sys, os, bz2
 import time
 import argparse
 
@@ -194,7 +194,7 @@ def init_bank(file_name, n1=None, n2=None, rseed=None):
 
     np.random.seed(rseed)
 
-    df = pd.read_csv(file_name)
+    df = pd.read_csv(bz2.open(file_name, "r"))
     df = df[:n2].values
 
     shuffled_index = np.random.permutation(len(df))
@@ -668,7 +668,7 @@ if __name__ == "__main__":
     # bank = init_bank('/home2/yongbeom/research/my_csa/all_pubchem_prob_0.01.smi.SAS', nbank, rseed=args.rseed)  # server PubChem
 
     bank = init_bank(
-        "/home2/yongbeom/research/my_csa/sampled_ZINC_0.001.smi.SAS",
+        "sampled_ZINC_0.001.smi.SAS.bz2",
         nbank,
         rseed=args.rseed,
     )  # server ZINC
